@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  /* Breakpoints */
+  --breakpoint-sm: 600px;
+  --breakpoint-md: 900px;
+  --breakpoint-ml: 1000px;
+  --breakpoint-lg: 1200px;
+  --breakpoint-xl: 1500px;
+  --breakpoint-2xl: 1800px;
+  --breakpoint-3xl: 2100px;
+
+  /* Colors */
+  --color-blue-1: #4FA9AF;
+
+  --color-green-1: #5FDD9D;
+  --color-green-2: #00C49A;
+  --color-green-3: #1BC53A;
+  --color-green-4: #DBFAE2;
+  --color-green-5: #B7F5C4;
+  --color-green-6: #C9F8D4;
+  --color-green-7: #2CD64B;
+
+  --color-white: #fafafa;
+  --color-black: rgb(41, 41, 41);
+
+  --color-gray-1: #959BB1;
+  --color-gray-2: #7A7A7A;
+  --color-gray-3: #e0e0e0;
+  --color-gray-4: #ededed;
+  --color-gray-5: #BFBFBF;
+  --color-gray-6: #d0d0d0;
+  --color-gray-7: #f2f2f2;
+
+  /* Spacing (used by w-*, h-*, p-*, m-* etc.) */
+  --spacing-100: 28rem;
+  --spacing-104: 36rem;
+  --spacing-120: 44rem;
+  --spacing-144: 48rem;
+  --spacing-160: 56rem;
+  --spacing-180: 64rem;
+  --spacing-68: 17rem;  /* for h-68 / w-68, etc. */
+}
+
+@font-face {
+  font-family: "Gilroy-Light";
+  src: url('/fonts/GilroyLight/font.woff2') format('woff2'), url('webFonts/GilroyLight/font.woff') format('woff');
+}
+
+body {
+	font-family: "Gilroy-Light";
+}
