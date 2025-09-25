@@ -143,5 +143,3 @@ healthy-shop/
 - Ensure HTTPS termination so Stripe can reach the webhook endpoint in production.
 
 ---
-
-Happy building!
