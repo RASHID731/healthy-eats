@@ -13,10 +13,10 @@ A full-stack e-commerce demo for “Healthy Eats,” showcasing a responsive Rea
 
 ## Tech Stack
 
-- **Frontend:** React 19, Vite, TypeScript, Tailwind CSS v4, React Router, Axios, Lucide icons.
+- **Frontend:** React 19, Vite, TypeScript, Tailwind CSS v4, React Router, Axios.
 - **Backend:** Spring Boot 3.5, Spring Security, Spring Data JPA, Jakarta Validation, Stripe Java SDK.
 - **Database:** PostgreSQL (auto-migrated schema, seeded via `data.sql`).
-- **Tooling:** Maven, Lombok, ESLint, TypeScript, Stripe CLI/webhooks.
+- **Tooling:** Maven, Lombok, TypeScript, Stripe CLI/webhooks.
 
 ## Architecture
 
@@ -76,12 +76,10 @@ stripe listen --forward-to localhost:8080/api/checkout/webhook
 
 - `npm run dev` – start Vite dev server
 - `npm run build` – type-check + production build
-- `npm run lint` – run ESLint
 
 ### Backend (`server/`)
 
 - `./mvnw spring-boot:run` – start Spring Boot app
-- `./mvnw test` – execute backend tests
 
 ## Key Endpoints
 
@@ -123,23 +121,5 @@ healthy-shop/
         ├── application.yml
         └── data.sql       # Seed data (categories/products)
 ```
-
-## Styling & UI
-
-- Tailwind CSS v4 theme customization lives in `client/src/index.css`.
-- Fonts (Inter + custom Gilroy) loaded via Google Fonts/`@font-face`.
-- Responsive navigation with auto-hide on scroll and mobile drawer menu.
-
-## Testing & Quality Checks
-
-- Backend tests run via Maven (`./mvnw test`).
-- Frontend linting ensures TypeScript/React best practices (`npm run lint`).
-- Add integration/UI tests as the project grows (e.g., Jest, Testing Library, Playwright).
-
-## Deployment Notes
-
-- Configure production URLs for both the API base URL and Stripe success/cancel pages before deploying.
-- Replace the placeholder Stripe test keys in `application.yml` with secure environment variables.
-- Ensure HTTPS termination so Stripe can reach the webhook endpoint in production.
 
 ---
