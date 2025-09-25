@@ -10,11 +10,10 @@ import java.util.List;
  * Provides endpoints for browsing all products available in the store.
  *
  * Base path: /api/products
- * Allows cross-origin requests from the frontend (localhost:5173).
+ * CORS handled globally in {@link com.healthyeats.server.config.SecurityConfig}.
  */
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = "http://localhost:5173")
 public class ProductController {
 
     private final ProductRepository repo;

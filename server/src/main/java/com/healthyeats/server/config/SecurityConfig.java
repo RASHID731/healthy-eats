@@ -1,5 +1,6 @@
 package com.healthyeats.server.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +14,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Security configuration for the application.
@@ -25,6 +28,15 @@ import java.util.List;
  */
 @Configuration
 public class SecurityConfig {
+
+    private final List<String> allowedOrigins;
+
+    public SecurityConfig(@Value("${frontend.allowed-origins:http://localhost:5173}") String allowedOriginsProperty) {
+        this.allowedOrigins = Arrays.stream(allowedOriginsProperty.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isEmpty())
+                .toList();
+    }
 
     /**
      * Defines the password encoder bean.
@@ -92,7 +104,7 @@ public class SecurityConfig {
      * Defines the CORS configuration for cross-origin requests.
      *
      * Allows:
-     * - Origin: http://localhost:5173 (frontend dev server)
+     * - Origins: configured via the `frontend.allowed-origins` property (comma-separated)
      * - Methods: GET, POST, PUT, DELETE, OPTIONS
      * - Headers: all
      * - Credentials: true (cookies/session IDs are included)
@@ -102,7 +114,25 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         var cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of("http://localhost:5173"));
+        var exactOrigins = new ArrayList<String>();
+        var patternOrigins = new ArrayList<String>();
+
+        for (var origin : allowedOrigins) {
+            if (origin.contains("*")) {
+                patternOrigins.add(origin);
+            } else {
+                exactOrigins.add(origin);
+            }
+        }
+
+        if (!exactOrigins.isEmpty()) {
+            cfg.setAllowedOrigins(exactOrigins);
+        }
+
+        if (!patternOrigins.isEmpty()) {
+            cfg.setAllowedOriginPatterns(patternOrigins);
+        }
+
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);

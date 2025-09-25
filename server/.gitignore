@@ -29,8 +29,12 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
+### Environment & secrets ###
+.env
+.env.*
+*.env
+*.key
+*.pem
 
-### Project ###
-application.yml
+### Application overrides ###
+application-*.yml

@@ -18,11 +18,10 @@ import org.springframework.web.bind.annotation.*;
  * and logging out.
  *
  * All routes are prefixed with "/api/auth".
- * Cross-origin requests from the frontend (localhost:5173) are allowed.
+ * CORS handled globally in {@link com.healthyeats.server.config.SecurityConfig}.
  */
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class AuthController {
 
     private final AuthService authService;
@@ -116,4 +115,3 @@ public class AuthController {
         response.setStatus(HttpServletResponse.SC_OK);
     }
 }
-

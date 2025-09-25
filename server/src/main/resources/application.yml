@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/healthy_db}
+    username: ${DB_USERNAME:healthy_user}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    show-sql: ${JPA_SHOW_SQL:false}
+    defer-datasource-initialization: ${DEFER_DATASOURCE_INITIALIZATION:false}
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE:never}
+
+frontend:
+  allowed-origins: ${FRONTEND_ALLOWED_ORIGINS:http://localhost:5173}
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:}
+  public-key: ${STRIPE_PUBLIC_KEY:}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
