@@ -30,7 +30,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/checkout")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class CheckoutController {
 
     private final UserRepository userRepository;
@@ -40,6 +39,9 @@ public class CheckoutController {
     /** Stripe secret key injected from application.yml */
     @Value("${stripe.secret-key}")
     private String stripeSecretKey;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     public CheckoutController(UserRepository userRepository,
                               ProductRepository productRepository,
@@ -130,8 +132,8 @@ public class CheckoutController {
         // Create Stripe Checkout session
         SessionCreateParams params = SessionCreateParams.builder()
             .setMode(SessionCreateParams.Mode.PAYMENT)
-            .setSuccessUrl("http://localhost:5173/success/?session_id={CHECKOUT_SESSION_ID}")
-            .setCancelUrl("http://localhost:5173/cancel")
+            .setSuccessUrl(frontendUrl + "/success/?session_id={CHECKOUT_SESSION_ID}")
+            .setCancelUrl(frontendUrl + "/cancel")
             .setClientReferenceId(order.getId().toString()) // tie Stripe session to order
             .addAllLineItem(lineItems)
             .build();

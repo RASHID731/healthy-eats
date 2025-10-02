@@ -10,7 +10,7 @@ import { XCircle } from "lucide-react";
  */
 export default function CancelPage() {
   return (
-    <main className="flex flex-col flex-grow items-center px-6 pt-70">
+    <main className="flex flex-col flex-grow justify-center items-center px-6 py-36">
       {/* --- Error Icon --- */}
       <XCircle className="w-20 h-20 text-red-500 mb-6" />
 

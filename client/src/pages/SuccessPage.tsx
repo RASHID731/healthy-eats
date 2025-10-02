@@ -19,7 +19,7 @@ export default function SuccessPage() {
   }, [clear]);
 
   return (
-    <main className="flex flex-col flex-grow items-center px-6 pt-70">
+    <main className="flex flex-col flex-grow justify-center items-center px-6 py-36">
       {/* --- Success Icon --- */}
       <CheckCircle className="w-20 h-20 text-green-3 mb-6" />
 

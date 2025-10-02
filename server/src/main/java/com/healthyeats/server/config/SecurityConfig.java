@@ -3,6 +3,7 @@ package com.healthyeats.server.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -87,11 +88,20 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())  // enable CORS
                 .csrf(csrf -> csrf.disable())     // disable CSRF for stateless API
                 .authorizeHttpRequests(auth -> auth
+                        // health / home / static
+                        .requestMatchers(HttpMethod.GET, "/", "/index.html", "/favicon.ico", "/robots.txt").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/assets/**", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        // CORS preflight
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // API
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/products/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/api/cart/**").permitAll()
                         .requestMatchers("/api/checkout/webhook").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())   // disable default login page

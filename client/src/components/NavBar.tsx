@@ -1,6 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { User, ShoppingCart, X, Menu } from "lucide-react";
 
 /**
@@ -23,24 +23,39 @@ export default function NavBar() {
 
   // Scroll visibility state
   const [show, setShow] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollY = useRef(0);
+  const ticking = useRef(false);
 
   /* ---------------- SCROLL HANDLER ---------------- */
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > lastScrollY) {
-        // scrolling down → hide nav
+  const handleScroll = () => {
+    if (ticking.current) return;
+
+    ticking.current = true;
+    requestAnimationFrame(() => {
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+      const threshold = Math.min(10, viewportHeight);
+      const current = Math.max(window.scrollY, 0);
+      const previous = lastScrollY.current;
+      const isScrollingDown = current > previous;
+      const isScrollingUp = current < previous;
+      const nearTop = current <= threshold;
+
+      if (isScrollingDown && !nearTop) {
         setShow(false);
-      } else {
-        // scrolling up → show nav
+      } else if (isScrollingUp || nearTop) {
         setShow(true);
       }
-      setLastScrollY(window.scrollY);
-    };
 
-    window.addEventListener("scroll", handleScroll);
+      lastScrollY.current = current;
+      ticking.current = false;
+    });
+  };
+
+  // Attach scroll listener
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, [handleScroll]);
 
   /* ---------------- RENDER ---------------- */
   return (

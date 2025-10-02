@@ -38,3 +38,7 @@ build/
 
 ### Application overrides ###
 application-*.yml
+application.jar
+backend-bundle.zip
+deploy.zip
+Procfile

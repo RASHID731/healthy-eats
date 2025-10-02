@@ -148,6 +148,7 @@ const ProductPage = () => {
                 >
 									{/* Product image */}
                   <img
+                    loading="lazy"
                     src={p.imageUrl}
                     alt={p.name}
                     className="object-cover rounded-xl md:w-52 md:h-52 sm:w-44 sm:h-44 w-40 h-40"
