@@ -1,125 +1,111 @@
 # Healthy Shop
 
-A full-stack e-commerce demo for “Healthy Eats,” showcasing a responsive React storefront backed by a Spring Boot API, complete with session carts, authentication, and a Stripe-powered checkout flow.
-
-## Features
-
-- Product catalog with category filters, search, and rich product cards.
-- Session-backed shopping cart with quantity controls synced to the backend.
-- Email/password authentication, protected routes, and profile area with order history.
-- Checkout form that collects shipping details, creates Stripe Checkout sessions, and handles success/cancel flows.
-- Stripe webhook listener that marks orders paid after successful payments.
-- Seeded PostgreSQL database with categories and inventory images served by the Vite dev server.
+## What It Does
+This full-stack Healthy Shop demo combines a Spring Boot REST API with a React storefront so shoppers can browse curated groceries, manage a session-backed cart, check out with Stripe, and review order history while the backend persists catalog, customer, and payment data.
 
 ## Tech Stack
-
-- **Frontend:** React 19, Vite, TypeScript, Tailwind CSS v4, React Router, Axios.
-- **Backend:** Spring Boot 3.5, Spring Security, Spring Data JPA, Jakarta Validation, Stripe Java SDK.
-- **Database:** PostgreSQL (auto-migrated schema, seeded via `data.sql`).
-- **Tooling:** Maven, Lombok, TypeScript, Stripe CLI/webhooks.
+- Java 21 with Maven Wrapper
+- Spring Boot 3.5.5 (web, security, data JPA, validation), Lombok
+- React 19, Vite 7, TypeScript, Tailwind CSS v4, React Router, Axios
+- Stripe Java SDK + @stripe/stripe-js for Checkout orchestration
+- PostgreSQL 15 seeded through `data.sql`
+- Maven, ESLint 9, TypeScript 5, Stripe CLI/webhooks
 
 ## Architecture
+- **Client (`client/`)**: Vite-powered React SPA with Tailwind styling. Cart and auth state live in context providers (`CartContext`, `AuthContext`) that wrap the router and share session data. Pages fetch data through a preconfigured Axios client (`src/lib/api.ts`) that attaches session cookies (`withCredentials: true`), handles product/category loading, and posts checkout payloads.
+- **Server (`server/`)**: Spring Boot application exposing `/api/**/*` endpoints. Packages group auth, product, category, cart, and order logic; services coordinate session cart mutations, Stripe checkout sessions, and webhook reconciliation. Security config enables session-based authentication with CORS for the Vite origin.
+- **Persistence**: PostgreSQL schema with JPA entities for users, products, categories, carts, and orders. Startup seed data in `data.sql` hydrates the catalog and image URLs served from `client/public/images`. `application.yml` toggles schema validation, seed execution, and Stripe credentials via environment variables.
 
-```
-client/   → React SPA (Vite, Tailwind, Auth/Cart contexts, router)
-server/   → Spring Boot API (auth, products, categories, cart, checkout, orders)
-```
+## Functional Coverage
+- **Product discovery**
+  - Fetches categories and products from `/api/categories` + `/api/products` and renders a responsive grid with lazy-loaded imagery.
+  - Category filters and incremental search narrow the catalog client-side; cards display friendly pricing units.
+  - Home, About, and Contact pages showcase marketing content that links through to the catalog.
+- **Cart & checkout**
+  - Session-backed cart API supports add, remove, quantity set, and clear operations; the React cart badge stays in sync through `CartContext`.
+  - Checkout flow collects shipping details, posts to `/api/checkout`, and redirects to Stripe-hosted payment with order id stored as the client reference.
+  - Cancel/success routes handle Stripe redirects and surface status messaging to the shopper.
+- **Authentication & profiles**
+  - Email/password registration and login persist Spring Security sessions; `/api/auth/me` hydrates the client’s auth context on refresh.
+  - Protected routes gate the profile area; hitting `/api/auth/logout` clears the server session and front-end state.
+- **Orders & payments**
+  - Successful Stripe webhooks (`/api/checkout/webhook`) mark orders as paid and unlock order summaries in `/api/orders`.
+  - Profile dashboard lists order history with line items, shipping address, and payment status.
+- **Backend services**
+  - Stripe session creation enforces authenticated checkout, maps cart items to Stripe line items, and stores pending orders before redirect.
+  - Controllers centralize validation error handling (e.g., cart quantity bounds) and rely on repositories for persistence.
 
-- The frontend calls the backend at `http://localhost:8080/api` via a shared Axios instance (`withCredentials: true`) to send the session cookie.
-- Stripe checkout is initiated from the client; the server persists a pending order, creates a Stripe session, and returns the hosted payment URL.
-- Stripe webhooks (`/api/checkout/webhook`) update the persisted order once payment succeeds.
+## API Endpoints
+### Auth (`/api/auth`)
+- `POST /register` — create a new user and start a session.
+- `POST /login` — authenticate via Spring Security and store session.
+- `GET /me` — return the currently authenticated user (or `null`).
+- `POST /logout` — invalidate the session and clear security context.
 
-## Getting Started
+### Products (`/api/products`)
+- `GET /` — list all products with pricing, imagery, and categories.
 
-### Prerequisites
+### Categories (`/api/categories`)
+- `GET /` — list all categories for filter controls.
 
-- Node.js 20+ and npm
-- Java 21 (matches the Maven `java.version`)
-- PostgreSQL running locally with a database/user that matches `spring.datasource.*` in `server/src/main/resources/application.yml`
-- Stripe API keys & webhook secret
+### Cart (`/api/cart`)
+- `GET /` — read the current session cart.
+- `POST /items` — increment/decrement a product quantity (defaults to +1).
+- `PUT /items/{productId}` — set an exact quantity.
+- `DELETE /items/{productId}` — remove a product from the cart.
+- `DELETE /` — clear the entire cart.
 
-### 1. Backend
+### Checkout (`/api/checkout`)
+- `POST /` — validate checkout payload, persist a pending order, and return the Stripe Checkout URL.
+- `POST /webhook` — Stripe webhook endpoint that verifies signatures and marks orders paid.
 
-```bash
-cd server
-./mvnw spring-boot:run
-```
-
-Environment variables (override defaults in `application.yml` as needed):
-
-- `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`
-- `STRIPE_SECRET_KEY`, `STRIPE_PUBLIC_KEY`, `STRIPE_WEBHOOK_SECRET`
-
-The app seeds categories/products on startup via `data.sql`.
-
-### 2. Frontend
-
-```bash
-cd client
-npm install
-npm run dev
-```
-
-The Vite dev server runs on `http://localhost:5173` and proxies API calls to the backend host defined in `src/lib/api.ts`.
-
-### 3. Stripe Webhook (optional but recommended)
-
-Use the Stripe CLI to forward webhooks to the local server:
-
-```bash
-stripe listen --forward-to localhost:8080/api/checkout/webhook
-```
-
-## Available Scripts
-
-### Frontend (`client/`)
-
-- `npm run dev` – start Vite dev server
-- `npm run build` – type-check + production build
-
-### Backend (`server/`)
-
-- `./mvnw spring-boot:run` – start Spring Boot app
-
-## Key Endpoints
-
-| Method | Path                     | Description                          | Auth |
-| ------ | ------------------------ | ------------------------------------ | ---- |
-| GET    | `/api/products`          | List all products                    | No   |
-| GET    | `/api/categories`        | List categories                      | No   |
-| GET    | `/api/cart`              | Fetch session cart                   | No   |
-| POST   | `/api/cart/items`        | Add/increment item in cart           | No   |
-| PUT    | `/api/cart/items/{id}`   | Set quantity                         | No   |
-| DELETE | `/api/cart`              | Clear cart                           | No   |
-| POST   | `/api/auth/register`     | Register user                        | No   |
-| POST   | `/api/auth/login`        | Login (session-based)                | No   |
-| GET    | `/api/auth/me`           | Current user session                 | Yes  |
-| POST   | `/api/checkout`          | Kick off Stripe checkout             | Yes  |
-| GET    | `/api/orders`            | Authenticated user order history     | Yes  |
-| POST   | `/api/checkout/webhook` | Stripe webhook to confirm payments   | No   |
+### Orders (`/api/orders`)
+- `GET /` — list the authenticated user’s orders with line items and shipping info.
 
 ## Directory Layout
-
 ```
-healthy-shop/
-├── client/                # React + Vite SPA
+.
+├── client/        # React + Vite storefront
 │   ├── src/
-│   │   ├── pages/         # Route components (home, products, auth, checkout…)
-│   │   ├── components/    # Shared UI (NavBar, Footer, tabs…)
-│   │   ├── context/       # Auth + Cart contexts
-│   │   └── lib/api.ts     # Axios instance pointing at the API
-│   └── public/images/     # Product imagery referenced by data.sql
-└── server/                # Spring Boot API
+│   │   ├── pages/           # Route components (home, products, checkout, profile…)
+│   │   ├── components/      # Shared UI (navigation, marketing sections, forms)
+│   │   ├── context/         # Auth + cart contexts and providers
+│   │   └── lib/api.ts       # Axios instance pointing to the API base URL
+│   └── public/images/       # Product imagery consumed by data.sql
+└── server/        # Spring Boot REST API
     ├── src/main/java/com/healthyeats/server/
-    │   ├── auth/          # Auth controllers + services
-    │   ├── cart/          # Session cart service + DTOs
-    │   ├── category/      # Category endpoints
-    │   ├── order/         # Checkout, orders, Stripe webhook
-    │   ├── product/       # Product CRUD/read endpoints
-    │   └── config/        # Security + CORS configuration
+    │   ├── auth/            # Session auth controller + service
+    │   ├── cart/            # Cart controller, service, DTOs
+    │   ├── category/        # Category controller + repository
+    │   ├── order/           # Checkout, webhooks, order persistence
+    │   ├── product/         # Product controller + repository
+    │   └── config/          # Security, CORS, session configuration
     └── src/main/resources/
-        ├── application.yml
-        └── data.sql       # Seed data (categories/products)
+        ├── application.yml  # Environment-driven config (DB, CORS, Stripe)
+        └── data.sql         # Seed data for categories/products
 ```
 
----
+## Minimal Setup
+1. Configure environment:
+   - Update `server/src/main/resources/application.yml` or export overrides (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `STRIPE_SECRET_KEY`, `STRIPE_PUBLIC_KEY`, `STRIPE_WEBHOOK_SECRET`, `FRONTEND_URL`).
+   - Create `client/.env.local` (or edit `client/.env.production`) with `VITE_API_BASE_URL=http://localhost:8080/api` for local dev.
+   - Ensure PostgreSQL database exists and the user matches the datasource credentials.
+2. Start the backend:
+   ```bash
+   cd server
+   ./mvnw spring-boot:run
+   ```
+   The app validates the schema (`ddl-auto=validate`) and can load seed data when `SQL_INIT_MODE=always`.
+3. Start the frontend:
+   ```bash
+   cd client
+   npm install
+   npm run dev
+   ```
+   Vite runs on `http://localhost:5173` and proxies API calls to the base URL set in `VITE_API_BASE_URL`.
+4. (Optional) Forward Stripe webhooks:
+   ```bash
+   stripe listen --forward-to localhost:8080/api/checkout/webhook
+   ```
+   This keeps local orders in sync by marking them paid once Checkout succeeds.
+
