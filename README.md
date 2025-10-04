@@ -8,6 +8,7 @@ This full-stack Healthy Shop demo combines a Spring Boot REST API with a React s
 - Frontend: React, TypeScript, Vite, Tailwind CSS, React Router, Axios
 - Payments: Stripe Checkout integration across server and client SDKs
 - Data: PostgreSQL backed by Hibernate/JPA entities and seeded catalog data
+- Deployment: AWS (CloudFront, S3, Elastic Beanstalk, RDS, Aurora)
 
 ## Architecture
 - **Client (`client/`)**: Vite-powered React SPA with Tailwind styling. Cart and auth state live in context providers (`CartContext`, `AuthContext`) that wrap the router and share session data. Pages fetch data through a preconfigured Axios client (`src/lib/api.ts`) that attaches session cookies (`withCredentials: true`), handles product/category loading, and posts checkout payloads.
