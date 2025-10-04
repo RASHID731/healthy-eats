@@ -4,12 +4,10 @@
 This full-stack Healthy Shop demo combines a Spring Boot REST API with a React storefront so shoppers can browse curated groceries, manage a session-backed cart, check out with Stripe, and review order history while the backend persists catalog, customer, and payment data.
 
 ## Tech Stack
-- Java 21 with Maven Wrapper
-- Spring Boot 3.5.5 (web, security, data JPA, validation), Lombok
-- React 19, Vite 7, TypeScript, Tailwind CSS v4, React Router, Axios
-- Stripe Java SDK + @stripe/stripe-js for Checkout orchestration
-- PostgreSQL 15 seeded through `data.sql`
-- Maven, ESLint 9, TypeScript 5, Stripe CLI/webhooks
+- Backend: Java with Spring Boot (Web, Security, Data JPA, Validation) and Lombok
+- Frontend: React, TypeScript, Vite, Tailwind CSS, React Router, Axios
+- Payments: Stripe Checkout integration across server and client SDKs
+- Data: PostgreSQL backed by Hibernate/JPA entities and seeded catalog data
 
 ## Architecture
 - **Client (`client/`)**: Vite-powered React SPA with Tailwind styling. Cart and auth state live in context providers (`CartContext`, `AuthContext`) that wrap the router and share session data. Pages fetch data through a preconfigured Axios client (`src/lib/api.ts`) that attaches session cookies (`withCredentials: true`), handles product/category loading, and posts checkout payloads.
